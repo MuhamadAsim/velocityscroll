@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SwiftHaul Auto Logistics</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <!-- Loading screen shown until assets are ready -->
+    <div id="loading-screen" aria-live="polite" role="status">
+      <div class="loader-content">
+        <div class="loader-spinner"></div>
+        <p class="loader-text">Loading SwiftHaul…</p>
+      </div>
+    </div>
+
+    <!-- Fixed full-screen canvas behind all content -->
+    <canvas id="scene-canvas" aria-hidden="true"></canvas>
+
+    <!-- Scroll container: tall wrapper that drives the GSAP timeline -->
+    <div id="scroll-container">
+      <!-- Sections injected by src/ui/sections.ts -->
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+
