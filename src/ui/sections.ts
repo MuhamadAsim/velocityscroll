@@ -30,11 +30,12 @@ export function createSections(): void {
   const hero = section('hero', stageHeight(STAGES.hero), 'section-center');
   hero.innerHTML = `
     <div class="hero-content">
+      <div class="route-pill">🇵🇰 Pakistan &nbsp;➔&nbsp; 🇮🇷 Iran &nbsp;➔&nbsp; 🇦🇿 Azerbaijan</div>
       <h1>${BRAND.name}</h1>
       <p class="tagline">${BRAND.tagline}</p>
       <a href="#quote-form" class="btn-cta">${BRAND.ctaText}</a>
       <div class="scroll-indicator" aria-hidden="true">
-        <span>Scroll to explore</span>
+        <span>Scroll to drive across borders</span>
         <div class="arrow"></div>
       </div>
     </div>
@@ -44,24 +45,28 @@ export function createSections(): void {
   /* ── 2. Travel 1 (no card, just empty height for scroll) ────────── */
   container.appendChild(section('travel-1', stageHeight(STAGES.travel1)));
 
-  /* ── 3. Stop 1 — Lahore card ────────────────────────────────────── */
+  /* ── 3. Stop 1 — Iran Transit Corridor card ─────────────────────── */
   const stop1 = section('stop-1', stageHeight(STAGES.stop1));
-  stop1.appendChild(card(ROUTE[1].label, ROUTE[1].description));
+  stop1.appendChild(
+    card(ROUTE[1].label, ROUTE[1].description, 'MILESTONE 1 / 2 • CROSS-BORDER TRANSIT'),
+  );
   container.appendChild(stop1);
 
   /* ── 4. Travel 2 ────────────────────────────────────────────────── */
   container.appendChild(section('travel-2', stageHeight(STAGES.travel2)));
 
-  /* ── 5. Stop 2 — Islamabad card ─────────────────────────────────── */
+  /* ── 5. Stop 2 — Azerbaijan Destination card ────────────────────── */
   const stop2 = section('stop-2', stageHeight(STAGES.stop2), 'section-right');
-  stop2.appendChild(card(ROUTE[2].label, ROUTE[2].description));
+  stop2.appendChild(
+    card(ROUTE[2].label, ROUTE[2].description, 'MILESTONE 2 / 2 • DESTINATION ARRIVAL'),
+  );
   container.appendChild(stop2);
 
   /* ── 6. Finale — delivered + quote form ──────────────────────────── */
   const finale = section('finale', stageHeight(STAGES.finale), 'section-center');
   finale.innerHTML = `
     <div class="quote-form-wrapper">
-      <div class="delivered-badge">✓ Delivered</div>
+      <div class="delivered-badge">✓ Delivered to Baku, Azerbaijan 🇦🇿</div>
       <div id="quote-form"></div>
     </div>
   `;
@@ -81,10 +86,14 @@ function section(id: string, height: string, extraClass = ''): HTMLElement {
   return el;
 }
 
-function card(heading: string, body: string): HTMLElement {
+function card(heading: string, body: string, badge?: string): HTMLElement {
   const el = document.createElement('div');
   el.className = 'card';
-  el.innerHTML = `<h2>${heading}</h2><p>${body}</p>`;
+  el.innerHTML = `
+    ${badge ? `<div class="card-badge">${badge}</div>` : ''}
+    <h2>${heading}</h2>
+    <p>${body}</p>
+  `;
   return el;
 }
 

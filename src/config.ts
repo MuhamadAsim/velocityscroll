@@ -17,27 +17,36 @@ export const BRAND = {
 
 export interface RouteStop {
   city: string;
+  flag: string;
+  country: string;
   label: string; // card heading at this stop
   description: string; // card body
 }
 
 export const ROUTE: RouteStop[] = [
   {
-    city: 'Karachi',
-    label: 'Pickup in Karachi',
-    description: 'We collect your car right from your doorstep — no drop-off needed.',
+    city: 'Pakistan',
+    country: 'Pakistan',
+    flag: '🇵🇰',
+    label: 'Origin — Pakistan 🇵🇰',
+    description:
+      'Doorstep collection, vehicle condition inspection, and secure loading into enclosed carriers across Pakistan.',
   },
   {
-    city: 'Lahore',
-    label: 'Door-to-Door Pickup',
+    city: 'Iran',
+    country: 'Iran',
+    flag: '🇮🇷',
+    label: 'Transit Corridor — Iran 🇮🇷',
     description:
-      'Our enclosed carriers protect your car from weather, dust, and road debris across every kilometre.',
+      'International bonded customs escort, real-time satellite GPS tracking, and insured overland transit across the Silk Route.',
   },
   {
-    city: 'Islamabad',
-    label: 'Real-Time Tracking & Insurance',
+    city: 'Azerbaijan',
+    country: 'Azerbaijan',
+    flag: '🇦🇿',
+    label: 'Destination — Azerbaijan 🇦🇿',
     description:
-      'Track your shipment live on the map. Every vehicle is fully insured from pickup to delivery.',
+      'Direct arrival at Baku Caspian Port. Full customs clearance handoff, final inspection, and safe delivery to your doorstep.',
   },
 ];
 

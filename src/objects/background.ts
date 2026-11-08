@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { COLORS } from '../config';
+import { getRoadPoint } from './road';
 
 /* ── Constants ────────────────────────────────────────────────────── */
 
@@ -323,7 +324,8 @@ export async function createBackground(scene: THREE.Scene): Promise<void> {
   scene.fog = fogRef;
 
   /* ── 3. Rolling Landscape Ground Plane ──────────────────────────── */
-  const terrainGeo = new THREE.PlaneGeometry(300, 180, 60, 36);
+  // High-resolution terrain mesh covering the entire route
+  const terrainGeo = new THREE.PlaneGeometry(360, 220, 120, 64);
   terrainGeo.rotateX(-Math.PI / 2);
 
   const posAttr = terrainGeo.attributes.position;
@@ -331,16 +333,23 @@ export async function createBackground(scene: THREE.Scene): Promise<void> {
     const x = posAttr.getX(i);
     const z = posAttr.getZ(i);
 
-    // Keep highway corridor flat (|z| < 6.2), gently roll outside
-    if (Math.abs(z) > 6.2) {
-      const distFromRoad = Math.abs(z) - 6.2;
+    // Sample road centerline at exact world X coordinate
+    const roadPt = getRoadPoint(x);
+    const distFromRoad = Math.abs(z - roadPt.z);
+
+    // Keep highway corridor flat & depressed below road level (y = -0.06)
+    // Road half-width is 4.6 (curbs at 5.5). Corridor stays flat up to 8.5 units.
+    if (distFromRoad > 8.5) {
+      const hillDist = distFromRoad - 8.5;
+      const ramp = Math.min(hillDist * 0.12, 1.0);
       const elevation =
         Math.sin(x * 0.04) * 0.8 +
         Math.cos(z * 0.05) * 1.2 +
         Math.sin((x + z) * 0.02) * 1.5;
-      posAttr.setY(i, Math.max(0, elevation * Math.min(distFromRoad * 0.15, 2.5)));
+      posAttr.setY(i, Math.max(0, elevation * ramp * 2.6));
     } else {
-      posAttr.setY(i, -0.02);
+      // Depressed slightly below asphalt surface (y = 0.02) to prevent any z-fighting
+      posAttr.setY(i, -0.06);
     }
   }
   terrainGeo.computeVertexNormals();
@@ -354,7 +363,8 @@ export async function createBackground(scene: THREE.Scene): Promise<void> {
 
   terrainMesh = new THREE.Mesh(terrainGeo, terrainMat);
   terrainMesh.name = 'terrain';
-  terrainMesh.position.set(40, 0, 0);
+  // MUST be at (0, 0, 0) so local coordinates match world coordinates identically
+  terrainMesh.position.set(0, 0, 0);
   terrainMesh.receiveShadow = true;
   scene.add(terrainMesh);
 
@@ -477,12 +487,13 @@ export async function createBackground(scene: THREE.Scene): Promise<void> {
   for (let i = 0; i < TREE_COUNT; i++) {
     const tree = treeTemplate.clone(true);
 
-    const isNorth = i % 3 !== 0;
-    const zPos = isNorth
-      ? -7.5 - ((i * 3.7) % 14)
-      : 7.2 + ((i * 2.9) % 9);
-
     const xPos = -55 + (i / TREE_COUNT) * 190 + (((i * 19) % 11) - 5);
+    const roadPt = getRoadPoint(xPos);
+
+    // ONLY place trees on the far / North side of the road (z < roadPt.z)
+    // NEVER on the user/camera side (z > roadPt.z) so the car is completely unobstructed!
+    const zOffset = -8.2 - ((i * 3.9) % 16); // depth: -8.2 to -24.2 behind the road
+    const zPos = roadPt.z + zOffset;
 
     const scaleVar = 0.55 + ((i * 7) % 9) * 0.045;
     tree.scale.multiplyScalar(scaleVar);

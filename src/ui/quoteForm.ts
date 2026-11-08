@@ -33,8 +33,8 @@ const FIELDS: FieldDef[] = [
     pattern: '^[+]?[0-9\\s\\-]{7,15}$',
     patternMsg: 'Enter a valid phone number',
   },
-  { name: 'pickupCity', label: 'Pickup City', type: 'select', required: true, options: CITIES },
-  { name: 'dropCity', label: 'Drop-off City', type: 'select', required: true, options: CITIES },
+  { name: 'pickupCity', label: 'Origin Country', type: 'select', required: true, options: CITIES },
+  { name: 'dropCity', label: 'Destination Country', type: 'select', required: true, options: CITIES },
   { name: 'carModel', label: 'Car Model', type: 'text', placeholder: 'Honda Civic 2023', required: true },
 ];
 

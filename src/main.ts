@@ -24,7 +24,7 @@ import { createLights, updateLights } from './scene/lights';
 
 /* Objects */
 import { loadCar, spinWheels, leanBody, setHeadlights, disposeCar, CarModel } from './objects/car';
-import { createRoad, updateRoad, disposeRoad } from './objects/road';
+import { createRoad, updateRoad, getRoadPoint, disposeRoad } from './objects/road';
 import { createBackground, updateBackground, disposeBackground } from './objects/background';
 import { createParticles, updateParticles, disposeParticles } from './objects/particles';
 
@@ -104,31 +104,37 @@ function startRenderLoop(): void {
     const carXDelta = currentCarX - prevCarX;
     prevCarX = currentCarX;
 
-    car.group.position.x = currentCarX;
+    /* ── Sample road point along the curved S-curve path ─────────── */
+    const roadPt = getRoadPoint(currentCarX);
+
+    car.group.position.x = roadPt.x;
+    car.group.position.z = roadPt.z;
 
     /* ── Wheel spin (proportional to smoothed distance delta) ──────── */
     spinWheels(car, carXDelta);
 
-    /* ── Car stays grounded — no idle wobble ───────────────────────── */
+    /* ── Car stays grounded & naturally steers into curves ─────────── */
     car.group.position.y = car.isGLB ? 0.35 : 0;
-    car.group.rotation.y = car.isGLB ? -Math.PI / 2 : 0;
+    // Align car yaw with road tangent
+    car.group.rotation.y = (car.isGLB ? -Math.PI / 2 : 0) - roadPt.angle;
 
-    /* ── Body lean in turns ───────────────────────────────────────── */
-    leanBody(car, store.turnDirection);
+    /* ── Dynamic body lean into turns based on road curvature ─────── */
+    const totalTurn = roadPt.curvature * 25.0 + store.turnDirection;
+    leanBody(car, totalTurn);
 
     /* ── Headlights ───────────────────────────────────────────────── */
     setHeadlights(car, store.headlights);
 
-    /* ── Camera smoothly anchored to car position ─────────────────── */
+    /* ── Camera smoothly tracks car along the curved highway ──────── */
     const camTarget = new THREE.Vector3(
-      currentCarX + store.camOffsetX,
+      roadPt.x + store.camOffsetX,
       store.camOffsetY,
-      store.camOffsetZ,
+      roadPt.z + store.camOffsetZ,
     );
     const lookTarget = new THREE.Vector3(
-      currentCarX + store.camLookAheadX,
+      roadPt.x + store.camLookAheadX,
       1,
-      0,
+      roadPt.z,
     );
     setCameraTarget(camTarget, lookTarget);
     updateCamera();
