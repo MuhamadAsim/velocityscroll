@@ -81,7 +81,7 @@ export const COLORS = {
     { progress: 0.70, top: '#2D1B69', bottom: '#0F172A', fog: '#1A1040' },
     { progress: 1.00, top: '#0B0D1A', bottom: '#0F172A', fog: '#0A0C18' },
   ] as { progress: number; top: string; bottom: string; fog: string }[],
-  road: '#374151',
+  road: '#16181d',
   roadLine: '#fbbf24',
 } as const;
 

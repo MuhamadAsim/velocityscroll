@@ -61,7 +61,7 @@ async function init(): Promise<void> {
   scene.add(car.group);
 
   createRoad(scene);
-  createBackground(scene);
+  await createBackground(scene);
   createParticles(scene);
 
   /* 4. UI sections */
