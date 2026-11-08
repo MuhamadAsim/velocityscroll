@@ -139,7 +139,7 @@ async function loadGLB(): Promise<CarModel> {
   /* Scale and orient the Ferrari model to fit our scene.
      The Ferrari is oriented along -Z, and is roughly 4.5m long.
      We rotate it so +X is forward (matching our road direction). */
-  scene.rotation.y = Math.PI / 2; // face +X
+  scene.rotation.y = -Math.PI / 2; // face +X (front of car points right)
   scene.scale.setScalar(1.0);
   scene.position.y = 0.35; // lift slightly above road
 
@@ -269,10 +269,10 @@ export function spinWheels(car: CarModel, distanceDelta: number): void {
   for (const w of car.wheels) {
     if (car.isGLB) {
       /* Ferrari wheels: rotation around X axis (the wheel groups face sideways) */
-      w.rotation.x += angle;
+      w.rotation.x -= angle;
     } else {
       /* Procedural wheels: cylinder oriented along Z */
-      w.rotation.z += angle;
+      w.rotation.z -= angle;
     }
   }
 }
@@ -285,7 +285,7 @@ export function idleFloat(car: CarModel, time: number): void {
   } else {
     car.body.position.y = 0.7 + Math.sin(time * 1.5) * TIMING.idleFloatY;
   }
-  car.group.rotation.y = (car.isGLB ? Math.PI / 2 : 0) + Math.sin(time * 0.8) * TIMING.idleYawAmp;
+  car.group.rotation.y = (car.isGLB ? -Math.PI / 2 : 0) + Math.sin(time * 0.8) * TIMING.idleYawAmp;
 }
 
 /** Lean body into turns */

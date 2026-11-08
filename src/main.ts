@@ -23,7 +23,7 @@ import { createCamera, resizeCamera, getCamera, setCameraTarget, updateCamera } 
 import { createLights, updateLights } from './scene/lights';
 
 /* Objects */
-import { loadCar, spinWheels, idleFloat, leanBody, setHeadlights, disposeCar, CarModel } from './objects/car';
+import { loadCar, spinWheels, leanBody, setHeadlights, disposeCar, CarModel } from './objects/car';
 import { createRoad, updateRoad, disposeRoad } from './objects/road';
 import { createBackground, updateBackground, disposeBackground } from './objects/background';
 import { createParticles, updateParticles, disposeParticles } from './objects/particles';
@@ -40,7 +40,6 @@ import { createQuoteForm } from './ui/quoteForm';
 
 let scene: THREE.Scene;
 let car: CarModel;
-let clock: THREE.Clock;
 
 /* ── Init ─────────────────────────────────────────────────────────── */
 
@@ -74,8 +73,7 @@ async function init(): Promise<void> {
   /* 6. Master timeline */
   createTimeline();
 
-  /* 7. Clock & render loop */
-  clock = new THREE.Clock();
+  /* 7. Render loop */
   startRenderLoop();
 
   /* 8. Hide loading screen */
@@ -97,7 +95,6 @@ function startRenderLoop(): void {
   function frame(): void {
     requestAnimationFrame(frame);
 
-    const elapsed = clock.getElapsedTime();
     const progress = store.scrollProgress;
 
     /* ── Car position ─────────────────────────────────────────────── */
@@ -107,20 +104,9 @@ function startRenderLoop(): void {
     const carXDelta = getCarXDelta();
     spinWheels(car, carXDelta);
 
-    /* ── Idle float (always subtle, stronger when not travelling) ── */
-    const idleStrength = 1 - store.travelIntensity;
-    if (idleStrength > 0.1) {
-      idleFloat(car, elapsed);
-    } else {
-      /* Reset idle when travelling */
-      if (car.isGLB) {
-        car.group.position.y = 0.35;
-        car.group.rotation.y = Math.PI / 2;
-      } else {
-        car.body.position.y = 0.7;
-        car.group.rotation.y = 0;
-      }
-    }
+    /* ── Car stays grounded — no idle float/wobble ───────────────── */
+    car.group.position.y = car.isGLB ? 0.35 : 0;
+    car.group.rotation.y = car.isGLB ? -Math.PI / 2 : 0;
 
     /* ── Body lean in turns ───────────────────────────────────────── */
     leanBody(car, store.turnDirection);
