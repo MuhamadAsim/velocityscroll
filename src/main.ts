@@ -30,7 +30,7 @@ import { createParticles, updateParticles, disposeParticles } from './objects/pa
 
 /* Animation */
 import { initLenis, destroyLenis } from './animation/lenis';
-import { createTimeline, store, getCarXDelta, destroyTimeline } from './animation/timeline';
+import { createTimeline, store, destroyTimeline } from './animation/timeline';
 
 /* UI */
 import { createSections } from './ui/sections';
@@ -91,20 +91,25 @@ async function init(): Promise<void> {
 function startRenderLoop(): void {
   const renderer = getRenderer();
   const camera = getCamera();
+  let currentCarX = store.carX;
+  let prevCarX = store.carX;
 
   function frame(): void {
     requestAnimationFrame(frame);
 
     const progress = store.scrollProgress;
 
-    /* ── Car position ─────────────────────────────────────────────── */
-    car.group.position.x = store.carX;
+    /* ── Smooth car position lerp for fluid 60fps translation ──────── */
+    currentCarX = THREE.MathUtils.lerp(currentCarX, store.carX, 0.18);
+    const carXDelta = currentCarX - prevCarX;
+    prevCarX = currentCarX;
 
-    /* ── Wheel spin (proportional to distance delta) ──────────────── */
-    const carXDelta = getCarXDelta();
+    car.group.position.x = currentCarX;
+
+    /* ── Wheel spin (proportional to smoothed distance delta) ──────── */
     spinWheels(car, carXDelta);
 
-    /* ── Car stays grounded — no idle float/wobble ───────────────── */
+    /* ── Car stays grounded — no idle wobble ───────────────────────── */
     car.group.position.y = car.isGLB ? 0.35 : 0;
     car.group.rotation.y = car.isGLB ? -Math.PI / 2 : 0;
 
@@ -114,14 +119,14 @@ function startRenderLoop(): void {
     /* ── Headlights ───────────────────────────────────────────────── */
     setHeadlights(car, store.headlights);
 
-    /* ── Camera ───────────────────────────────────────────────────── */
+    /* ── Camera smoothly anchored to car position ─────────────────── */
     const camTarget = new THREE.Vector3(
-      store.carX + store.camOffsetX,
+      currentCarX + store.camOffsetX,
       store.camOffsetY,
       store.camOffsetZ,
     );
     const lookTarget = new THREE.Vector3(
-      store.carX + store.camLookAheadX,
+      currentCarX + store.camLookAheadX,
       1,
       0,
     );
@@ -129,14 +134,14 @@ function startRenderLoop(): void {
     updateCamera();
 
     /* ── Road ─────────────────────────────────────────────────────── */
-    updateRoad(store.carX);
+    updateRoad(currentCarX);
 
     /* ── Background & lighting ────────────────────────────────────── */
-    updateBackground(progress, store.carX);
+    updateBackground(progress, currentCarX);
     updateLights(progress);
 
     /* ── Particles ────────────────────────────────────────────────── */
-    updateParticles(store.travelIntensity, store.carX);
+    updateParticles(store.travelIntensity, currentCarX);
 
     /* ── Render ────────────────────────────────────────────────────── */
     renderer.render(scene, camera);

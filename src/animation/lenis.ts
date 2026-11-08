@@ -8,6 +8,7 @@
  */
 
 import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -28,6 +29,7 @@ export function initLenis(): void {
   lenis = new Lenis({
     lerp: 0.08,
     smoothWheel: true,
+    autoRaf: false,
   });
 
   /* Bridge: pipe Lenis scroll position into ScrollTrigger */

@@ -116,7 +116,7 @@ export function createTimeline(): gsap.core.Timeline | null {
       camLookAheadX: 4,
       turnDirection: 0.3,
       duration: stageDur('travel1'),
-      ease: 'power1.inOut',
+      ease: 'none',
     },
     stageStart('travel1'),
   );
@@ -134,8 +134,8 @@ export function createTimeline(): gsap.core.Timeline | null {
       camOffsetY: 4,
       camOffsetZ: 8,
       camLookAheadX: 2,
-      duration: stageDur('stop1') * 0.3, // quick ease-down
-      ease: 'power2.out',
+      duration: stageDur('stop1') * 0.4,
+      ease: 'power1.out',
     },
     stageStart('stop1'),
   );
@@ -155,7 +155,7 @@ export function createTimeline(): gsap.core.Timeline | null {
       camLookAheadX: -3,
       turnDirection: -0.2,
       duration: stageDur('travel2'),
-      ease: 'power1.inOut',
+      ease: 'none',
     },
     stageStart('travel2'),
   );
@@ -183,8 +183,8 @@ export function createTimeline(): gsap.core.Timeline | null {
       camOffsetY: 4,
       camOffsetZ: 8,
       camLookAheadX: 2,
-      duration: stageDur('stop2') * 0.3,
-      ease: 'power2.out',
+      duration: stageDur('stop2') * 0.4,
+      ease: 'power1.out',
     },
     stageStart('stop2'),
   );
@@ -203,8 +203,8 @@ export function createTimeline(): gsap.core.Timeline | null {
       camOffsetZ: 10,
       camLookAheadX: 3,
       turnDirection: 0,
-      duration: stageDur('finale') * 0.4,
-      ease: 'power2.out',
+      duration: stageDur('finale') * 0.5,
+      ease: 'power1.out',
     },
     stageStart('finale'),
   );
@@ -215,9 +215,9 @@ export function createTimeline(): gsap.core.Timeline | null {
     {
       travelIntensity: 0,
       duration: stageDur('finale') * 0.3,
-      ease: 'power2.out',
+      ease: 'power1.out',
     },
-    stageStart('finale') + stageDur('finale') * 0.4,
+    stageStart('finale') + stageDur('finale') * 0.5,
   );
 
   /* ────────────────────────────────────────────────────────────────
@@ -227,16 +227,16 @@ export function createTimeline(): gsap.core.Timeline | null {
     trigger: '#scroll-container',
     start: 'top top',
     end: 'bottom bottom',
-    scrub: 1, // 1-second smooth scrub
+    scrub: 1.2, // smooth scrub duration in seconds
+    animation: masterTimeline,
     onUpdate(self) {
-      /* Store raw scroll progress for other systems */
       store.scrollProgress = self.progress;
-
-      /* Drive the timeline */
-      masterTimeline!.progress(self.progress);
-
-      /* Track carX delta for wheel spin (computed in render loop) */
     },
+  });
+
+  /* Keep store.scrollProgress in sync on every tick of the scrubbed timeline */
+  masterTimeline.eventCallback('onUpdate', () => {
+    store.scrollProgress = masterTimeline!.progress();
   });
 
   return masterTimeline;
