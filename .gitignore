@@ -4,9 +4,6 @@ node_modules/
 # Build output
 dist/
 
-# Large 3D models (download separately)
-public/models/*.glb
-
 # Vite
 *.local
 
