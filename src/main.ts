@@ -48,6 +48,15 @@ async function init(): Promise<void> {
   const canvas = document.getElementById('scene-canvas') as HTMLCanvasElement;
   if (!canvas) throw new Error('Canvas not found');
 
+  /* 0. Real-time asset loading progress feedback */
+  const loaderText = document.querySelector('.loader-text');
+  THREE.DefaultLoadingManager.onProgress = (_url, loaded, total) => {
+    if (loaderText && total > 0) {
+      const pct = Math.min(100, Math.round((loaded / total) * 100));
+      loaderText.textContent = `Loading SwiftHaul… ${pct}%`;
+    }
+  };
+
   /* 1. Smooth scroll */
   initLenis();
 
@@ -57,12 +66,15 @@ async function init(): Promise<void> {
   createCamera();
   createLights(scene);
 
-  /* 3. Objects */
-  car = await loadCar();
+  /* 3. Objects (load car model and background environment concurrently) */
+  const [loadedCar] = await Promise.all([
+    loadCar(),
+    createBackground(scene),
+  ]);
+  car = loadedCar;
   scene.add(car.group);
 
   createRoad(scene);
-  await createBackground(scene);
   createParticles(scene);
 
   /* 4. UI sections */

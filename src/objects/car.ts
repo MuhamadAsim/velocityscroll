@@ -75,9 +75,9 @@ export async function loadCar(): Promise<CarModel> {
 async function loadGLB(): Promise<CarModel> {
   const loader = new GLTFLoader();
 
-  /* Set up Draco decoder in case the model uses Draco compression */
+  /* Set up Draco decoder from local public directory (zero third-party latency) */
   const dracoLoader = new DRACOLoader();
-  dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+  dracoLoader.setDecoderPath('/draco/');
   loader.setDRACOLoader(dracoLoader);
 
   const gltf = await new Promise<ReturnType<typeof loader.loadAsync> extends Promise<infer T> ? T : never>(

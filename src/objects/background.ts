@@ -176,7 +176,7 @@ function generateBuildingTextures(): { diffuse: THREE.CanvasTexture; emissive: T
 async function loadTreeModel(): Promise<THREE.Group> {
   const loader = new GLTFLoader();
   const dracoLoader = new DRACOLoader();
-  dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+  dracoLoader.setDecoderPath('/draco/');
   loader.setDRACOLoader(dracoLoader);
 
   const candidateUrls = [
