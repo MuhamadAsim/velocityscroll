@@ -16,10 +16,26 @@ const currentLookAt = new THREE.Vector3();
 /** Default camera offset relative to the car */
 const DEFAULT_OFFSET = new THREE.Vector3(6, 4, 8);
 
+/**
+ * Compute an adaptive vertical FOV that expands horizontal coverage on
+ * narrow / portrait mobile viewports without fisheye distortion.
+ */
+export function getResponsiveFov(aspect: number): number {
+  if (aspect >= 1.6) return 45;
+  if (aspect < 1.0) {
+    // Smoothly scale up from 48° to 58° for tall narrow phones
+    const t = Math.max(0, Math.min(1, (1.0 - aspect) / 0.55));
+    return THREE.MathUtils.lerp(48, 58, t);
+  }
+  // Transition between square (1.0) and widescreen (1.6)
+  return THREE.MathUtils.lerp(48, 45, (aspect - 1.0) / 0.6);
+}
+
 export function createCamera(): THREE.PerspectiveCamera {
+  const aspect = window.innerWidth / window.innerHeight;
   camera = new THREE.PerspectiveCamera(
-    45,
-    window.innerWidth / window.innerHeight,
+    getResponsiveFov(aspect),
+    aspect,
     0.1,
     500,
   );
@@ -32,7 +48,9 @@ export function createCamera(): THREE.PerspectiveCamera {
 /** Call on window resize */
 export function resizeCamera(): void {
   if (!camera) return;
-  camera.aspect = window.innerWidth / window.innerHeight;
+  const aspect = window.innerWidth / window.innerHeight;
+  camera.aspect = aspect;
+  camera.fov = getResponsiveFov(aspect);
   camera.updateProjectionMatrix();
 }
 

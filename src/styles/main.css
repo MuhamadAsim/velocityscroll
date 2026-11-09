@@ -34,6 +34,7 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  touch-action: pan-y;
 }
 
 body {
@@ -41,6 +42,8 @@ body {
   color: var(--color-white);
   background: var(--color-dark);
   overflow-x: hidden;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ── Loading screen ───────────────────────────────────────────────── */
@@ -95,6 +98,8 @@ body {
   height: 100%;
   z-index: var(--z-canvas);
   display: block;
+  pointer-events: none; /* Let touches and clicks cleanly pass through to content */
+  touch-action: pan-y;
 }
 
 /* ── Scroll container ─────────────────────────────────────────────── */
@@ -102,7 +107,9 @@ body {
 #scroll-container {
   position: relative;
   z-index: var(--z-content);
-  pointer-events: none; /* let canvas clicks through; cards re-enable */
+  width: 100%;
+  pointer-events: none; /* Interactive children opt back in with pointer-events: auto */
+  touch-action: pan-y;
 }
 
 /* ── Sections (each story beat) ───────────────────────────────────── */
@@ -113,7 +120,8 @@ body {
   align-items: center;
   justify-content: flex-start;
   padding: 2rem;
-  min-height: var(--section-height);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .scroll-section.section-center {
@@ -256,8 +264,8 @@ body {
 }
 
 .quote-form {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
@@ -265,6 +273,20 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+.form-group-name,
+.form-group-phone,
+.form-group-carModel {
+  grid-column: 1 / -1;
+}
+
+.form-group-pickupCity {
+  grid-column: 1;
+}
+
+.form-group-dropCity {
+  grid-column: 2;
 }
 
 .form-group label {
@@ -310,6 +332,7 @@ body {
 }
 
 .btn-submit {
+  grid-column: 1 / -1;
   padding: 0.9rem;
   font-size: 1.05rem;
   font-weight: 600;
@@ -331,6 +354,7 @@ body {
 }
 
 .form-success {
+  grid-column: 1 / -1;
   text-align: center;
   padding: 1rem;
   font-size: 1.1rem;
@@ -372,29 +396,162 @@ body {
   50% { transform: translateX(-50%) translateY(10px); }
 }
 
-/* ── Responsive ───────────────────────────────────────────────────── */
+/* ── Responsive Mobile & Tablet ───────────────────────────────────── */
 
 @media (max-width: 768px) {
   .scroll-section {
-    padding: 1.5rem 1rem;
-    justify-content: center;
+    padding: 1rem 1.15rem 2.25rem;
+    justify-content: center !important;
+    align-items: flex-end; /* Pin story cards to bottom so 3D car stays framed above */
   }
 
-  .scroll-section.section-right {
-    justify-content: center;
+  .scroll-section#hero {
+    align-items: center;
+    padding: 1.75rem 1.15rem 3.5rem;
+  }
+
+  .scroll-section#finale {
+    align-items: flex-end;
+    padding-bottom: 2rem;
   }
 
   .card {
     max-width: 100%;
-    padding: 1.5rem;
+    width: 100%;
+    padding: 1.25rem 1.25rem 1.35rem;
+    border-radius: 16px;
+    margin: 0 auto;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
   }
 
   .card h2 {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
+    margin-bottom: 0.4rem;
+    line-height: 1.25;
+  }
+
+  .card p {
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .card-badge {
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.35rem;
+  }
+
+  .route-pill {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.75rem;
+    gap: 0.35rem;
+    max-width: 100%;
+    margin-bottom: 0.85rem;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(1.85rem, 8.5vw, 2.75rem);
+    margin-bottom: 0.35rem;
+  }
+
+  .hero-content .tagline {
+    font-size: 0.92rem;
+    margin-bottom: 1.35rem;
+    padding: 0 0.5rem;
+  }
+
+  .btn-cta {
+    padding: 0.8rem 1.8rem;
+    font-size: 0.95rem;
+  }
+
+  .scroll-indicator {
+    bottom: 0.85rem;
+    gap: 0.35rem;
+  }
+
+  .scroll-indicator span {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+
+  .scroll-indicator .arrow {
+    width: 20px;
+    height: 20px;
   }
 
   .quote-form-wrapper {
     max-width: 100%;
+    width: 100%;
+    padding: 1.25rem 1.25rem 1.35rem;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--color-card-border);
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+  }
+
+  .delivered-badge {
+    font-size: 0.95rem;
+    padding: 0.5rem 0.85rem;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+    border-radius: 10px;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .quote-form {
+    gap: 0.65rem;
+  }
+
+  .form-group label {
+    font-size: 0.72rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.55rem 0.75rem;
+    font-size: 16px; /* Essential to prevent iOS Safari auto-zoom on focus */
+    border-radius: 8px;
+  }
+
+  .form-error {
+    font-size: 0.7rem;
+    min-height: 0.9em;
+  }
+
+  .btn-submit {
+    padding: 0.75rem;
+    font-size: 0.98rem;
+  }
+}
+
+@media (max-width: 440px) {
+  .quote-form {
+    grid-template-columns: 1fr;
+  }
+  .form-group-pickupCity,
+  .form-group-dropCity {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-height: 640px) {
+  .scroll-indicator {
+    display: none;
+  }
+  .scroll-section#hero {
+    padding: 1rem;
   }
 }
 

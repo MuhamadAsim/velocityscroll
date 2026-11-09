@@ -29,11 +29,15 @@ export function initLenis(): void {
   lenis = new Lenis({
     lerp: 0.08,
     smoothWheel: true,
+    syncTouch: true,
+    syncTouchLerp: 0.08,
+    touchMultiplier: 1.5,
     autoRaf: false,
   });
 
   /* Bridge: pipe Lenis scroll position into ScrollTrigger */
   lenis.on('scroll', ScrollTrigger.update);
+  window.addEventListener('scroll', () => ScrollTrigger.update(), { passive: true });
 
   /* Use GSAP ticker so Lenis runs on rAF via GSAP's loop */
   gsap.ticker.add((time: number) => {

@@ -51,7 +51,7 @@ export function createQuoteForm(): void {
 
   for (const field of FIELDS) {
     const group = document.createElement('div');
-    group.className = 'form-group';
+    group.className = `form-group form-group-${field.name}`;
 
     /* Label */
     const label = document.createElement('label');
@@ -87,6 +87,9 @@ export function createQuoteForm(): void {
       input.name = field.name;
       input.type = field.type;
       input.required = field.required;
+      if (field.name === 'phone') {
+        input.inputMode = 'tel';
+      }
       if (field.placeholder) input.placeholder = field.placeholder;
       if (field.pattern) input.pattern = field.pattern;
       group.appendChild(input);

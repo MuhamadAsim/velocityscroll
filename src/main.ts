@@ -31,6 +31,7 @@ import { createParticles, updateParticles, disposeParticles } from './objects/pa
 /* Animation */
 import { initLenis, destroyLenis } from './animation/lenis';
 import { createTimeline, store, destroyTimeline } from './animation/timeline';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 /* UI */
 import { createSections } from './ui/sections';
@@ -82,8 +83,9 @@ async function init(): Promise<void> {
     loadingScreen.classList.add('hidden');
   }
 
-  /* Handle resize */
+  /* Handle resize & orientation change */
   window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onOrientationChange);
 }
 
 /* ── Render loop ──────────────────────────────────────────────────── */
@@ -126,14 +128,24 @@ function startRenderLoop(): void {
     setHeadlights(car, store.headlights);
 
     /* ── Camera smoothly tracks car along the curved highway ──────── */
+    const aspect = window.innerWidth / window.innerHeight;
+    const isPortrait = aspect < 1.15;
+    const mobileFactor = isPortrait ? Math.min(1, (1.15 - aspect) / 0.7) : 0;
+
+    // On narrow / mobile portrait screens, pull camera back and raise Y slightly
+    // so the sports car, road ribbon, and country checkpoint portals remain comfortably framed
+    // in the upper 55% of the viewport above the foreground story cards
+    const distMult = 1.0 + mobileFactor * 0.72;
+    const heightBonus = mobileFactor * 1.5;
+
     const camTarget = new THREE.Vector3(
-      roadPt.x + store.camOffsetX,
-      store.camOffsetY,
-      roadPt.z + store.camOffsetZ,
+      roadPt.x + store.camOffsetX * distMult,
+      store.camOffsetY * distMult + heightBonus,
+      roadPt.z + store.camOffsetZ * distMult,
     );
     const lookTarget = new THREE.Vector3(
       roadPt.x + store.camLookAheadX,
-      1,
+      0.85 - mobileFactor * 0.35,
       roadPt.z,
     );
     setCameraTarget(camTarget, lookTarget);
@@ -165,7 +177,12 @@ function onResize(): void {
   resizeTimer = setTimeout(() => {
     resizeRenderer();
     resizeCamera();
-  }, 150);
+    ScrollTrigger.refresh();
+  }, 120);
+}
+
+function onOrientationChange(): void {
+  setTimeout(onResize, 100);
 }
 
 /* ── Cleanup (for Vite HMR) ───────────────────────────────────────── */
@@ -173,6 +190,7 @@ function onResize(): void {
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     window.removeEventListener('resize', onResize);
+    window.removeEventListener('orientationchange', onOrientationChange);
     destroyTimeline();
     destroyLenis();
     disposeCar(car);
